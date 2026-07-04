@@ -1,0 +1,127 @@
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+
+:root {
+  --paper: #f5f4f0;
+  --ink: #17191b;
+  --ink-soft: #5a5f63;
+  --line: #d8d6cf;
+  --card: #ffffff;
+  --chase: #b45309;      /* amber: sequence running */
+  --chase-bg: #fdf3e3;
+  --won: #166534;        /* green: customer responded */
+  --won-bg: #e9f4ec;
+  --dead: #8a8f93;       /* gray: paused / exhausted */
+  --dead-bg: #eeeeec;
+  --display: "Barlow Condensed", sans-serif;
+  --body: "IBM Plex Sans", -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px 60px; }
+
+/* Header */
+.topbar {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding-bottom: 14px; border-bottom: 2px solid var(--ink);
+  margin-bottom: 20px;
+}
+.logo {
+  font-family: var(--display); font-weight: 700; font-size: 26px;
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.logo span { color: var(--chase); }
+
+/* The money strip: total $ being chased is the hero */
+.moneystrip {
+  background: var(--ink); color: var(--paper);
+  padding: 18px 20px; margin-bottom: 24px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  flex-wrap: wrap; gap: 12px;
+}
+.moneystrip .big {
+  font-family: var(--display); font-weight: 700; font-size: 42px;
+  line-height: 1; font-variant-numeric: tabular-nums;
+}
+.moneystrip .label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: #b9bdb6; margin-bottom: 4px;
+}
+.moneystrip .sub { text-align: right; font-size: 13px; color: #b9bdb6; }
+.moneystrip .sub strong { color: var(--paper); }
+
+/* Quote rows */
+.quote {
+  background: var(--card); border: 1px solid var(--line);
+  border-left: 4px solid var(--dead);
+  padding: 14px 16px; margin-bottom: 10px;
+}
+.quote.active { border-left-color: var(--chase); }
+.quote.responded { border-left-color: var(--won); }
+
+.quote-top { display: flex; justify-content: space-between; gap: 10px; }
+.quote-name { font-weight: 600; }
+.quote-amount {
+  font-family: var(--display); font-weight: 700; font-size: 22px;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.quote-meta { color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
+
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  padding: 2px 8px; border-radius: 3px; margin-top: 8px;
+}
+.badge.active { background: var(--chase-bg); color: var(--chase); }
+.badge.responded { background: var(--won-bg); color: var(--won); }
+.badge.paused, .badge.exhausted { background: var(--dead-bg); color: var(--dead); }
+
+.quote-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Buttons + forms */
+button, .btn {
+  font-family: var(--body); font-size: 13px; font-weight: 600;
+  padding: 8px 14px; cursor: pointer; border-radius: 4px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+}
+button.primary, .btn.primary {
+  background: var(--ink); color: var(--paper); border-color: var(--ink);
+}
+button.won { background: var(--won); color: #fff; border-color: var(--won); }
+button:disabled { opacity: 0.5; cursor: default; }
+
+form { display: flex; flex-direction: column; gap: 14px; }
+label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink-soft); }
+input, textarea {
+  width: 100%; padding: 10px 12px; font-family: var(--body); font-size: 15px;
+  border: 1px solid var(--line); border-radius: 4px; background: var(--card);
+  margin-top: 4px;
+}
+input:focus, textarea:focus, button:focus-visible {
+  outline: 2px solid var(--chase); outline-offset: 1px;
+}
+
+.empty {
+  border: 1px dashed var(--line); padding: 32px 20px; text-align: center;
+  color: var(--ink-soft);
+}
+.error { color: #b3261e; font-size: 13px; }
+
+h1.page {
+  font-family: var(--display); font-weight: 700; font-size: 28px;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+}
+
+a { color: inherit; }
+
+@media (max-width: 480px) {
+  .moneystrip .big { font-size: 34px; }
+}
