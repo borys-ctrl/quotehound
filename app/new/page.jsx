@@ -122,7 +122,7 @@ export default function NewQuote() {
         <h1 className="page">Sequence scheduled</h1>
         <p style={{ marginBottom: 16 }}>
           QuoteHound will chase {form.customer_name.split(" ")[0]} with{" "}
-          {sequence && sequence.length === 1 ? "this email" : `these ${sequence ? sequence.length : 3} emails`}.
+          {sequence && sequence.length === 1 ? "this email" : `these ${sequence ? sequence.length : 5} emails`}.
           It stops the moment you mark the quote as responded.
         </p>
         {(sequence || []).map((e, i) => (

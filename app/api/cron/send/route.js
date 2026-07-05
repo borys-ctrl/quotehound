@@ -111,8 +111,14 @@ export async function GET(req) {
 
       await sql`UPDATE followups SET status = 'sent', sent_at = now()
                 WHERE id = ${f.id}`;
-      // Final email sent -> sequence exhausted
-      if (f.step === 3) {
+      // Sequence is exhausted once no scheduled follow-ups remain for the quote.
+      // For a full 5-step sequence that's after step 5; it also correctly closes
+      // out sequences the expiry rule truncated to fewer emails.
+      const [{ remaining }] = await sql`
+        SELECT COUNT(*)::int AS remaining FROM followups
+        WHERE quote_id = ${f.quote_id} AND status = 'scheduled'
+      `;
+      if (remaining === 0) {
         await sql`UPDATE quotes SET status = 'exhausted' WHERE id = ${f.quote_id}`;
       }
       sent++;

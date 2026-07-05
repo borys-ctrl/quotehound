@@ -92,7 +92,7 @@ export default function Dashboard() {
                   {q.status === "active" && q.next_send && (
                     <> · next follow-up {new Date(q.next_send).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</>
                   )}
-                  {Number(q.sent_count) > 0 && <> · {q.sent_count}/3 sent</>}
+                  {Number(q.sent_count) > 0 && <> · {q.sent_count}/5 sent</>}
                 </div>
               </div>
               <div className="quote-amount">{fmt(q.amount)}</div>
