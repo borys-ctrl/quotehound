@@ -19,6 +19,9 @@ export async function GET(req) {
     smtp_user: user.smtp_user || "",
     smtp_connected: !!user.smtp_pass_encrypted,
     email_verified_send: !!user.email_verified_send,
+    auth_provider: user.auth_provider || "password",
+    send_via: user.send_via || "smtp",
+    google_connected: !!user.google_refresh_token_encrypted,
   });
 }
 
@@ -32,6 +35,20 @@ export async function POST(req) {
   const sender_name = String(body.sender_name || "").trim();
   const business_name = String(body.business_name || "").trim();
   const business_phone = String(body.business_phone || "").trim();
+
+  // Google users send via the Gmail API — never touch their SMTP/verified
+  // state from this form; only let them edit their sender profile.
+  if (user.send_via === "gmail_api") {
+    await sql`
+      UPDATE users SET
+        sender_name = ${sender_name},
+        business_name = ${business_name},
+        business_phone = ${business_phone}
+      WHERE id = ${user.id}
+    `;
+    return NextResponse.json({ ok: true, email_verified_send: user.email_verified_send });
+  }
+
   const smtp_host = String(body.smtp_host || "").trim();
   const smtp_port = Number(body.smtp_port) || 465;
   const smtp_user = String(body.smtp_user || "").trim();

@@ -34,7 +34,12 @@ export async function POST(req) {
   const cleanEmail = String(email || "").trim().toLowerCase();
 
   const [user] = await sql`SELECT * FROM users WHERE email = ${cleanEmail}`;
-  const ok = user && (await verifyPassword(String(password || ""), user.password_hash));
+  // Google-only accounts have no password_hash — reject cleanly (no empty-password
+  // login, no bcrypt crash) and steer them to the Google button.
+  const ok =
+    user &&
+    user.password_hash &&
+    (await verifyPassword(String(password || ""), user.password_hash));
   if (!ok) {
     return NextResponse.json({ error: "Wrong email or password." }, { status: 401 });
   }

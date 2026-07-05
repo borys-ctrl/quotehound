@@ -9,6 +9,7 @@ const PUBLIC = [
   "/api/signup",
   "/api/logout",
   "/api/cron",
+  "/api/auth/google",
 ];
 
 function isPublic(pathname) {

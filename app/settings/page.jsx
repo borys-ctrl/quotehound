@@ -77,9 +77,12 @@ export default function Settings() {
   const [provider, setProvider] = useState("gmail");
   const [connected, setConnected] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [sendVia, setSendVia] = useState("smtp");
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState("");
+
+  const isGoogle = sendVia === "gmail_api";
 
   async function load() {
     const res = await fetch("/api/settings");
@@ -99,6 +102,7 @@ export default function Settings() {
     setProvider(detectProvider(d.smtp_host));
     setConnected(d.smtp_connected);
     setVerified(d.email_verified_send);
+    setSendVia(d.send_via || "smtp");
     setLoaded(true);
   }
   useEffect(() => { load(); }, []);
@@ -190,18 +194,40 @@ export default function Settings() {
         className={`quote ${verified ? "responded" : "active"}`}
         style={{ marginBottom: 20 }}
       >
-        <div className="quote-name">
-          {verified
-            ? `Connected as ${form.smtp_user || form.email}`
-            : connected
-            ? "Sending email saved — send a test to verify"
-            : "Sending email not connected yet"}
-        </div>
-        <div className="quote-meta">
-          {verified
-            ? "Follow-ups will send from this address."
-            : "You can't start chasing quotes until a test send succeeds."}
-        </div>
+        {isGoogle ? (
+          <>
+            <div className="quote-name">
+              {verified
+                ? `Connected as ${form.email} via Google`
+                : "Google access needs reconnecting"}
+            </div>
+            <div className="quote-meta">
+              {verified
+                ? "Follow-ups send straight from your Gmail — no SMTP setup needed."
+                : "Your Google access was revoked. Reconnect to resume sending."}
+            </div>
+            <div style={{ marginTop: 10 }}>
+              <a className="btn primary" href="/api/auth/google">
+                {verified ? "Reconnect Google" : "Reconnect Google"}
+              </a>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="quote-name">
+              {verified
+                ? `Connected as ${form.smtp_user || form.email}`
+                : connected
+                ? "Sending email saved — send a test to verify"
+                : "Sending email not connected yet"}
+            </div>
+            <div className="quote-meta">
+              {verified
+                ? "Follow-ups will send from this address."
+                : "You can't start chasing quotes until a test send succeeds."}
+            </div>
+          </>
+        )}
       </div>
 
       <form onSubmit={(e) => e.preventDefault()}>
@@ -218,48 +244,52 @@ export default function Settings() {
           <input value={form.business_phone} onChange={set("business_phone")} placeholder="(808) 555-0100" />
         </label>
 
-        <label>
-          Email provider
-          <select
-            value={provider}
-            onChange={pickProvider}
-            style={{
-              width: "100%", padding: "10px 12px", fontFamily: "var(--body)",
-              fontSize: 15, border: "1px solid var(--line)", borderRadius: 4,
-              background: "var(--card)", marginTop: 4,
-            }}
-          >
-            {Object.entries(PROVIDERS).map(([k, p]) => (
-              <option key={k} value={k}>{p.label}</option>
-            ))}
-          </select>
-        </label>
+        {!isGoogle && (
+          <>
+            <label>
+              Email provider
+              <select
+                value={provider}
+                onChange={pickProvider}
+                style={{
+                  width: "100%", padding: "10px 12px", fontFamily: "var(--body)",
+                  fontSize: 15, border: "1px solid var(--line)", borderRadius: 4,
+                  background: "var(--card)", marginTop: 4,
+                }}
+              >
+                {Object.entries(PROVIDERS).map(([k, p]) => (
+                  <option key={k} value={k}>{p.label}</option>
+                ))}
+              </select>
+            </label>
 
-        <p style={{ fontSize: 13, color: "var(--ink-soft)", marginTop: -6 }}>
-          {PROVIDERS[provider].help}
-        </p>
+            <p style={{ fontSize: 13, color: "var(--ink-soft)", marginTop: -6 }}>
+              {PROVIDERS[provider].help}
+            </p>
 
-        <label>
-          SMTP host
-          <input value={form.smtp_host} onChange={set("smtp_host")} placeholder="smtp.gmail.com" />
-        </label>
-        <label>
-          SMTP port
-          <input type="number" value={form.smtp_port} onChange={set("smtp_port")} placeholder="465" />
-        </label>
-        <label>
-          SMTP username (the address follow-ups send from)
-          <input value={form.smtp_user} onChange={set("smtp_user")} placeholder="sales@bestflooringhonolulu.com" />
-        </label>
-        <label>
-          SMTP app password
-          <input
-            type="password"
-            value={form.smtp_pass}
-            onChange={set("smtp_pass")}
-            placeholder={connected ? "•••••••• (leave blank to keep current)" : "app-specific password"}
-          />
-        </label>
+            <label>
+              SMTP host
+              <input value={form.smtp_host} onChange={set("smtp_host")} placeholder="smtp.gmail.com" />
+            </label>
+            <label>
+              SMTP port
+              <input type="number" value={form.smtp_port} onChange={set("smtp_port")} placeholder="465" />
+            </label>
+            <label>
+              SMTP username (the address follow-ups send from)
+              <input value={form.smtp_user} onChange={set("smtp_user")} placeholder="sales@bestflooringhonolulu.com" />
+            </label>
+            <label>
+              SMTP app password
+              <input
+                type="password"
+                value={form.smtp_pass}
+                onChange={set("smtp_pass")}
+                placeholder={connected ? "•••••••• (leave blank to keep current)" : "app-specific password"}
+              />
+            </label>
+          </>
+        )}
 
         {error && <p className="error">{error}</p>}
         {msg && <p style={{ color: "var(--won)", fontSize: 13 }}>{msg}</p>}
