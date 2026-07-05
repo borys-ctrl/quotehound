@@ -10,6 +10,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
     "@neondatabase/serverless": "^0.10.4",
+    "bcryptjs": "^2.4.3",
     "next": "^14.2.15",
     "nodemailer": "^6.9.16",
     "react": "^18.3.1",

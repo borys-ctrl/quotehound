@@ -8,12 +8,19 @@ const fmt = (n) =>
 export default function Dashboard() {
   const [quotes, setQuotes] = useState(null);
   const [busy, setBusy] = useState(0);
+  const [verified, setVerified] = useState(true);
 
   async function load() {
     const res = await fetch("/api/quotes");
     setQuotes(await res.json());
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    fetch("/api/settings")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setVerified(!!d.email_verified_send))
+      .catch(() => {});
+  }, []);
 
   async function act(id, action) {
     setBusy(id);
@@ -34,8 +41,21 @@ export default function Dashboard() {
     <div className="wrap">
       <div className="topbar">
         <div className="logo">Quote<span>Hound</span></div>
-        <a className="btn primary" href="/new">+ New quote</a>
+        <div style={{ display: "flex", gap: 8 }}>
+          <a className="btn" href="/settings">Settings</a>
+          <a className="btn primary" href="/new">+ New quote</a>
+        </div>
       </div>
+
+      {!verified && (
+        <div className="quote active" style={{ marginBottom: 20 }}>
+          <div className="quote-name">Connect your sending email first</div>
+          <div className="quote-meta">
+            QuoteHound needs your email connected before it can chase quotes.{" "}
+            <a href="/settings" style={{ fontWeight: 600 }}>Go to Settings →</a>
+          </div>
+        </div>
+      )}
 
       <div className="moneystrip">
         <div>

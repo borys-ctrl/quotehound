@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function NewQuote() {
   const [form, setForm] = useState({
@@ -13,6 +13,14 @@ export default function NewQuote() {
   const [state, setState] = useState("idle"); // idle | saving | done | error
   const [sequence, setSequence] = useState(null);
   const [error, setError] = useState("");
+  const [verified, setVerified] = useState(null); // null = still checking
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setVerified(d ? !!d.email_verified_send : false))
+      .catch(() => setVerified(false));
+  }, []);
 
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
@@ -52,6 +60,28 @@ export default function NewQuote() {
         <a className="btn primary" href="/" style={{ display: "inline-block", marginTop: 10 }}>
           Back to dashboard
         </a>
+      </div>
+    );
+  }
+
+  if (verified === false) {
+    return (
+      <div className="wrap">
+        <div className="topbar">
+          <div className="logo">Quote<span>Hound</span></div>
+          <a className="btn" href="/">Dashboard</a>
+        </div>
+        <h1 className="page">New quote</h1>
+        <div className="empty">
+          <p style={{ marginBottom: 12, fontWeight: 600, color: "var(--ink)" }}>
+            Connect your sending email first
+          </p>
+          <p style={{ marginBottom: 16 }}>
+            QuoteHound sends follow-ups from your own email address. Connect and
+            verify it before you start chasing quotes.
+          </p>
+          <a className="btn primary" href="/settings">Go to Settings</a>
+        </div>
       </div>
     );
   }
