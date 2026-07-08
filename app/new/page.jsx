@@ -19,7 +19,6 @@ export default function NewQuote() {
   const [state, setState] = useState("idle"); // idle | saving | error
   const [parsing, setParsing] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [sequence, setSequence] = useState(null);
   const [error, setError] = useState("");
   const [verified, setVerified] = useState(null); // null = still checking
   const fileRef = useRef(null);
@@ -84,8 +83,9 @@ export default function NewQuote() {
       });
       if (!res.ok) throw new Error((await res.json()).error || "Failed");
       const data = await res.json();
-      setSequence(data.scheduled || data.sequence);
-      setStage("done");
+      // Quote is created as pending_approval — send the user to review and
+      // approve the drafted follow-ups before anything is scheduled to send.
+      window.location.href = `/quotes/${data.quote.id}/approve`;
     } catch (err) {
       setError(String(err.message || err));
       setState("error");
@@ -98,7 +98,7 @@ export default function NewQuote() {
       <div className="wrap">
         <div className="topbar">
           <div className="logo">Quote<span>Hound</span></div>
-          <a className="btn" href="/">Dashboard</a>
+          <a className="btn" href="/dashboard">Dashboard</a>
         </div>
         <h1 className="page">New quote</h1>
         <div className="empty">
@@ -115,36 +115,13 @@ export default function NewQuote() {
     );
   }
 
-  // ---- Sequence scheduled ----
-  if (stage === "done") {
-    return (
-      <div className="wrap">
-        <h1 className="page">Sequence scheduled</h1>
-        <p style={{ marginBottom: 16 }}>
-          QuoteHound will chase {form.customer_name.split(" ")[0]} with{" "}
-          {sequence && sequence.length === 1 ? "this email" : `these ${sequence ? sequence.length : 5} emails`}.
-          It stops the moment you mark the quote as responded.
-        </p>
-        {(sequence || []).map((e, i) => (
-          <div key={i} className="quote active" style={{ whiteSpace: "pre-wrap" }}>
-            <div className="quote-meta">Day {e.day} · subject: {e.subject}</div>
-            <div style={{ marginTop: 6 }}>{e.body}</div>
-          </div>
-        ))}
-        <a className="btn primary" href="/" style={{ display: "inline-block", marginTop: 10 }}>
-          Back to dashboard
-        </a>
-      </div>
-    );
-  }
-
   // ---- Pick intake mode ----
   if (stage === "pick") {
     return (
       <div className="wrap">
         <div className="topbar">
           <div className="logo">Quote<span>Hound</span></div>
-          <a className="btn" href="/">Dashboard</a>
+          <a className="btn" href="/dashboard">Dashboard</a>
         </div>
         <h1 className="page">New quote</h1>
 
@@ -200,14 +177,14 @@ export default function NewQuote() {
     <div className="wrap">
       <div className="topbar">
         <div className="logo">Quote<span>Hound</span></div>
-        <a className="btn" href="/">Dashboard</a>
+        <a className="btn" href="/dashboard">Dashboard</a>
       </div>
       <h1 className="page">{fromPdf ? "Review quote" : "New quote"}</h1>
 
       {fromPdf && (
         <p style={{ marginBottom: 16, fontSize: 14, color: "var(--ink-soft)" }}>
-          Pulled from your PDF — check each field, then start chasing. Nothing
-          sends until you confirm.
+          Pulled from your PDF — check each field, then draft the follow-ups.
+          You'll review and approve every email before anything sends.
         </p>
       )}
 
@@ -250,7 +227,7 @@ export default function NewQuote() {
         {error && <p className="error">{error}</p>}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           <button className="primary" disabled={state === "saving"} onClick={submit}>
-            {state === "saving" ? "Writing follow-ups…" : "Start chasing"}
+            {state === "saving" ? "Writing follow-ups…" : "Draft the follow-ups →"}
           </button>
           <button type="button" disabled={state === "saving"} onClick={() => { setStage("pick"); setError(""); setState("idle"); }}>
             Back

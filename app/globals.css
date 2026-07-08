@@ -65,6 +65,7 @@ body {
   padding: 14px 16px; margin-bottom: 10px;
 }
 .quote.active { border-left-color: var(--chase); }
+.quote.pending_approval { border-left-color: var(--chase); }
 .quote.responded { border-left-color: var(--won); }
 
 .quote-top { display: flex; justify-content: space-between; gap: 10px; }
@@ -81,6 +82,7 @@ body {
   padding: 2px 8px; border-radius: 3px; margin-top: 8px;
 }
 .badge.active { background: var(--chase-bg); color: var(--chase); }
+.badge.pending_approval { background: var(--chase-bg); color: var(--chase); }
 .badge.responded { background: var(--won-bg); color: var(--won); }
 .badge.paused, .badge.exhausted { background: var(--dead-bg); color: var(--dead); }
 

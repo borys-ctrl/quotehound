@@ -185,7 +185,7 @@ export default function Settings() {
     <div className="wrap">
       <div className="topbar">
         <div className="logo">Quote<span>Hound</span></div>
-        <a className="btn" href="/">Dashboard</a>
+        <a className="btn" href="/dashboard">Dashboard</a>
       </div>
 
       <h1 className="page">Settings</h1>

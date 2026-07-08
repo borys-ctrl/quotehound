@@ -2,7 +2,25 @@ import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 
-// PATCH { action: "responded" | "pause" | "resume" }
+// Fetch one quote (scoped to the owner) plus its follow-ups — powers the
+// approval page.
+export async function GET(req, { params }) {
+  const user = await getSessionUser(req);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const id = Number(params.id);
+  const [quote] = await sql`
+    SELECT * FROM quotes WHERE id = ${id} AND user_id = ${user.id}
+  `;
+  if (!quote) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  const followups = await sql`
+    SELECT * FROM followups WHERE quote_id = ${id} ORDER BY send_on, step
+  `;
+  return NextResponse.json({ quote, followups });
+}
+
+// PATCH { action: "approve" | "responded" | "pause" | "resume" }
 export async function PATCH(req, { params }) {
   const user = await getSessionUser(req);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,7 +36,11 @@ export async function PATCH(req, { params }) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  if (action === "responded") {
+  if (action === "approve") {
+    // Only a pending quote can be approved into an active (sending) sequence.
+    await sql`UPDATE quotes SET status = 'active'
+              WHERE id = ${id} AND status = 'pending_approval'`;
+  } else if (action === "responded") {
     await sql`UPDATE quotes SET status = 'responded' WHERE id = ${id}`;
     await sql`UPDATE followups SET status = 'canceled'
               WHERE quote_id = ${id} AND status = 'scheduled'`;

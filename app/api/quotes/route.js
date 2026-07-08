@@ -47,15 +47,17 @@ export async function POST(req) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
+  // New quotes start as pending_approval: the follow-ups are drafted and
+  // scheduled, but the cron never sends until the owner approves them.
   const [quote] = await sql`
     INSERT INTO quotes
       (user_id, customer_name, customer_email, customer_phone, amount,
-       description, quote_date, expires_on)
+       description, quote_date, expires_on, status)
     VALUES
       (${user.id}, ${customer_name}, ${customer_email}, ${customer_phone || ""},
        ${amount}, ${description || ""},
        ${quote_date || new Date().toISOString().slice(0, 10)},
-       ${expires_on || null})
+       ${expires_on || null}, 'pending_approval')
     RETURNING *
   `;
 

@@ -19,10 +19,21 @@ function isPublic(pathname) {
 export async function middleware(req) {
   const { pathname } = req.nextUrl;
 
-  if (isPublic(pathname)) return NextResponse.next();
-
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   const userId = await verifySession(token);
+
+  // Landing page is public, but a logged-in user should land on their dashboard.
+  if (pathname === "/") {
+    if (userId) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  if (isPublic(pathname)) return NextResponse.next();
+
   if (!userId) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
