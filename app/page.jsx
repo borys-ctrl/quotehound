@@ -37,8 +37,12 @@ export default function Landing() {
       >
         Every quote deserves an answer.
       </h1>
-      <p style={{ fontSize: 18, color: "var(--ink-soft)", maxWidth: 560, marginBottom: 28 }}>
+      <p style={{ fontSize: 18, color: "var(--ink-soft)", maxWidth: 560, marginBottom: 10 }}>
         QuoteHound chases your unanswered quotes until they reply.
+      </p>
+      <p style={{ fontSize: 15, color: "var(--ink-soft)", maxWidth: 560, marginBottom: 28 }}>
+        Your first 5 quotes are free. After that, $29/month — one recovered job
+        pays for years of it.
       </p>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 40 }}>
